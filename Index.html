@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Simulação de Nanorrobôs no Combate ao Câncer</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.js"></script>
+  <style>
+    body { margin: 0; padding: 0; overflow: hidden; font-family: Arial; }
+    #legenda {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div id="legenda">
+    <strong>Legenda:</strong><br>
+    🔴 Célula Cancerígena<br>
+    🟢 Nanorrobô (buscando)<br>
+    🔵 Nanorrobô (após ataque)
+  </div>
+
+  <script>
+    let nanorrobos = [];
+    let celulasCancerigenas = [];
+
+    function setup() {
+      createCanvas(windowWidth, windowHeight);
+      for (let i = 0; i < 10; i++) {
+        nanorrobos.push(new Nanorobo(random(width), random(height)));
+      }
+      for (let i = 0; i < 8; i++) {
+        celulasCancerigenas.push(createVector(random(width), random(height)));
+      }
+    }
+
+    function draw() {
+      background(240);
+
+      // Desenha células cancerígenas
+      fill(255, 0, 0);
+      noStroke();
+      for (let c of celulasCancerigenas) {
+        ellipse(c.x, c.y, 20, 20);
+      }
+
+      // Atualiza nanorrobôs
+      for (let n of nanorrobos) {
+        n.mover();
+        n.exibir();
+        n.atacar(celulasCancerigenas);
+      }
+    }
+
+    class Nanorobo {
+      constructor(x, y) {
+        this.pos = createVector(x, y);
+        this.vel = p5.Vector.random2D();
+        this.cor = color(0, 255, 0); // verde: buscando
+      }
+
+      mover() {
+        this.pos.add(this.vel);
+        if (this.pos.x < 0 || this.pos.x > width) this.vel.x *= -1;
+        if (this.pos.y < 0 || this.pos.y > height) this.vel.y *= -1;
+      }
+
+      exibir() {
+        fill(this.cor);
+        noStroke();
+        ellipse(this.pos.x, this.pos.y, 15, 15);
+      }
+
+      atacar(alvos) {
+        for (let i = alvos.length - 1; i >= 0; i--) {
+          let d = dist(this.pos.x, this.pos.y, alvos[i].x, alvos[i].y);
+          if (d < 15) {
+            alvos.splice(i, 1);
+            this.cor = color(0, 0, 255); // azul: após atacar
+          }
+        }
+      }
+    }
+  </script>
+</body>
+</html>
